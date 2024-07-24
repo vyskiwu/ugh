@@ -1,0 +1,411 @@
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/Loco-CTO/UI-Library/main/VisionLibV2/source.lua'))()
+
+Window = Library:Create({
+	Name = "Sigma Gyatt Hub / kings.lua",
+	Footer = "by cutewhiteboy1223 and frogboy24",
+	ToggleKey = Enum.KeyCode.RightShift,
+	LoadedCallback = function()
+		Window:TaskBarOnly(false)
+	end,
+	KeySystem = false,
+	Key = "123456",
+	MaxAttempts = 5,
+	DiscordLink = nil,
+})
+
+Window:ChangeTogglekey(Enum.KeyCode.RightShift)
+
+local Tab = Window:Tab({
+	Name = "kings.lua",
+	Icon = "rbxassetid://11396131982",
+	Color = Color3.new(1, 0, 0)
+})
+
+local Section1 = Tab:Section({
+	Name = "Basic Controls"
+})
+
+local Label = Section1:Label({
+	Name = "Lame\nTest",
+})
+
+Label:SetName(" we the best music - mlk\nfree the kings!")
+
+local Label = Section1:Label({
+	Name = "free the kings til its backwards\nthis script is made for autofarming, solely that.",
+})
+
+local detectionPart = "Left Leg"
+local safeModeEnabled = false
+local autograbEnabled = false
+local roofTeleportEnabled = false
+local leftArmCheckEnabled = false
+local deleteCagesEnabled = false
+
+local player = game.Players.LocalPlayer
+local originalPosition = player.Character.HumanoidRootPart.Position
+local roofTeleportCoroutine = nil
+local originalMainEffectFolder = nil
+
+local function botKillerScript()
+	-- Settings
+	local transparencyValue = 1  
+	local canCollideValue = false  
+
+
+	local function detectandmodify()
+		
+		local botsFolder = game:GetService("Workspace"):FindFirstChild("Bots")
+		
+		-- Check if the Bots folder exists
+		if botsFolder then
+			
+			for _, part in pairs(botsFolder:GetDescendants()) do
+				
+				local validParts = detectionPart == "All" and {
+					"Left Leg", "Right Leg", "Head", "Right Arm", "Left Arm"
+				} or {detectionPart}
+
+				if part:IsA("Part") and table.find(validParts, part.Name) then
+					
+					if not part:GetAttribute("Expanded") then
+						part.Size = part.Size + Vector3.new(300, 30, 300) 
+						part.Transparency = transparencyValue  
+						part.CanCollide = canCollideValue  
+						part:SetAttribute("Expanded", true)  
+					end
+				end
+			end
+		else
+			warn("Bots folder not found in Workspace.")
+		end
+	end
+
+	
+	local function continuousDetection()
+		while true do
+			detectandmodify()  
+			wait(1) 
+		end
+	end
+
+	
+	continuousDetection()
+end
+
+local function autograbScript()
+	while autograbEnabled do
+		for _, part in pairs(game:GetService("Workspace"):GetDescendants()) do
+			if part:IsA("Part") and (part.Name == "YellowSpike" or part.Name == "YellowSpike2" or part.Name == "YellowLaser" or part.Name == "YellowLaser2") then
+				part.Size = part.Size + Vector3.new(500, 500, 500)
+				part.Position = player.Character.HumanoidRootPart.Position
+			end
+		end
+
+		wait(1)
+	end
+end
+
+local function safeModeScript()
+	local replicatedStorage = game:GetService("ReplicatedStorage")
+	
+	local function saveMainEffectFolder()
+		originalMainEffectFolder = replicatedStorage:FindFirstChild("MainEffectFolder")
+		if originalMainEffectFolder then
+			originalMainEffectFolder = originalMainEffectFolder:Clone()
+		end
+	end
+	
+	local function deleteMainEffectFolder()
+		local folder = replicatedStorage:FindFirstChild("MainEffectFolder")
+		if folder then
+			folder:Destroy()
+		end
+	end
+	
+	while safeModeEnabled do
+		
+		deleteMainEffectFolder()
+		
+		
+		local bossLasersFolder = game:GetService("Workspace"):FindFirstChild("BossLasers")
+		if bossLasersFolder then
+			for _, item in pairs(bossLasersFolder:GetChildren()) do
+				if not (item.Name == "YellowLavaLaser" or item.Name == "YellowLavaLaser2" or item.Name == "YellowSpike" or item.Name == "YellowSpike2") then
+					item:Destroy()
+				end
+			end
+		end
+
+		for _, part in pairs(game:GetService("Workspace").DeathOrb:GetDescendants()) do
+			if part:IsA("Part") then
+				part.Size = part.Size + Vector3.new(500, 500, 500)
+			end
+		end
+
+		wait(0.01)
+	end
+	
+	
+	if originalMainEffectFolder then
+		originalMainEffectFolder.Parent = replicatedStorage
+		originalMainEffectFolder = nil
+	end
+end
+
+local function teleportToOrbss()
+	local orbssFolder = game:GetService("Workspace"):FindFirstChild("Orbss")
+	if not orbssFolder then
+		warn("Orbss folder not found in Workspace.")
+		return
+	end
+	
+	if roofTeleportCoroutine then
+		roofTeleportEnabled = false 
+		roofTeleportCoroutine = nil
+	end
+	
+	for _, model in pairs(orbssFolder:GetChildren()) do
+		for _, part in pairs(model:GetDescendants()) do
+			if part:IsA("Part") and part.Name == "base" then
+				local partPos = part.Position
+				originalPosition = player.Character.HumanoidRootPart.Position
+				player.Character.HumanoidRootPart.CFrame = CFrame.new(partPos)
+				wait(0.5)
+				player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition)
+				break
+			end
+		end
+	end
+end
+
+local function roofTeleport()
+	local roofPosition = Vector3.new(0, 1000, 0) 
+	while roofTeleportEnabled do
+		player.Character.HumanoidRootPart.CFrame = CFrame.new(roofPosition)
+		wait(2) 
+		player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition)
+		wait(2) 
+	end
+end
+
+local function BodyCheck()
+	while leftArmCheckEnabled do
+		local Body = {}
+		for _, part in pairs(game:GetService("Workspace"):GetDescendants()) do
+			if part:IsA("Part") and part.Name == (item) then
+				local distance = (part.Position - player.Character.HumanoidRootPart.Position).Magnitude
+				if distance <= 100 then
+					table.insert(Body, part)
+				end
+			end
+		end
+
+		for _, part in pairs(Body) do
+			local distance = (part.Position - player.Character.HumanoidRootPart.Position).Magnitude
+			if distance > 100 then
+				
+				if part.Parent and part.Parent:IsA("Model") then
+					part.Parent:SetPrimaryPartCFrame(CFrame.new(player.Character.HumanoidRootPart.Position + (part.Position - player.Character.HumanoidRootPart.Position).Unit * 100))
+				end
+			end
+		end
+
+		wait(1) 
+	end
+end
+
+local function deleteCages()
+	while deleteCagesEnabled do
+		local cagesFolder = game:GetService("Workspace"):FindFirstChild("Cages")
+		if cagesFolder then
+			for _, item in pairs(cagesFolder:GetChildren()) do
+				item:Destroy()
+			end
+		end
+
+		wait(0.01)
+	end
+end
+
+local Button = Section1:Button({
+	Name = "Bot Killer",
+	Callback = function()
+		botKillerScript()
+		Library:Notify({
+			Name = "Bot Killer On",
+			Text = "Enabled Indefinitely.",
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Toggle = Section1:Toggle({
+	Name = "Autograb",
+	Default = false,
+	Callback = function(Bool) 
+		autograbEnabled = Bool
+		if Bool then
+			spawn(autograbScript)
+		end
+		Library:Notify({
+			Name = "Toggled",
+			Text = tostring(Bool),
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Toggle2 = Section1:Toggle({
+	Name = "Safe Mode",
+	Default = false,
+	Callback = function(Bool) 
+		safeModeEnabled = Bool
+		if Bool then
+			saveMainEffectFolder()
+			spawn(safeModeScript)
+		else
+			
+			if originalMainEffectFolder then
+				originalMainEffectFolder.Parent = game:GetService("ReplicatedStorage")
+				originalMainEffectFolder = nil
+			end
+		end
+		Library:Notify({
+			Name = "Safe Mode Toggled",
+			Text = tostring(Bool),
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Toggle3 = Section1:Toggle({
+	Name = "Safe Mode Roof TP",
+	Default = false,
+	Callback = function(Bool)
+		roofTeleportEnabled = Bool
+		if Bool then
+			originalPosition = player.Character.HumanoidRootPart.Position
+			roofTeleportCoroutine = coroutine.create(roofTeleport)
+			coroutine.resume(roofTeleportCoroutine)
+		else
+			if roofTeleportCoroutine then
+				roofTeleportCoroutine:Cancel()
+				roofTeleportCoroutine = nil
+			end
+		end
+		Library:Notify({
+			Name = "Roof TP Toggled",
+			Text = tostring(Bool),
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Toggle4 = Section1:Toggle({
+	Name = "BodyCheck",
+	Default = false,
+	Callback = function(Bool)
+		leftArmCheckEnabled = Bool
+		if Bool then
+			spawn(BodyCheck)
+		end
+		Library:Notify({
+			Name = "Body Check Toggled",
+			Text = tostring(Bool),
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Toggle5 = Section1:Toggle({
+	Name = "Delete Cages",
+	Default = false,
+	Callback = function(Bool)
+		deleteCagesEnabled = Bool
+		if Bool then
+			spawn(deleteCages)
+		end
+		Library:Notify({
+			Name = "Delete Cages Toggled",
+			Text = tostring(Bool),
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Section2 = Tab:Section({
+	Name = "Other Controls"
+})
+
+local Dropdown = Section2:Dropdown({
+	Name = "Detection Part",
+	Items = {"Left Leg", "Right Leg", "Head", "Right Arm", "Left Arm", "All"},
+	Callback = function(item)
+		detectionPart = item
+		Library:Notify({
+			Name = "Detecting...",
+			Text = item,
+			Icon = "rbxassetid://11401835376",
+			Duration = 3,
+		})
+	end
+})
+
+local Button = Section2:Button({
+	Name = "Teleport To Orbs",
+	Callback = function()
+		spawn(teleportToOrbss)
+		Library:Notify({
+			Name = "Teleporting to Orbs",
+			Text = "Teleporting to all orbs and back.",
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
+local Tab = Window:Tab({
+	Name = "Others",
+	Icon = "rbxassetid://11476626403",
+	Color = Color3.new(0.474509, 0.474509, 0.474509)
+})
+
+local Section = Tab:Section({
+	Name = "Miscs"
+})
+
+local Button = Section:Button({
+	Name = "Destroy library",
+	Callback = function()
+		Library:Destroy()
+	end
+})
+
+local Button = Section:Button({
+	Name = "Hide UI",
+	Callback = function()
+		Window:Toggled(false)
+		
+		task.wait(3)
+		
+		Window:Toggled(true)
+	end
+})
+
+local Button = Section:Button({
+	Name = "Task Bar Only",
+	Callback = function()
+		Window:TaskBarOnly(true)
+
+		task.wait(3)
+
+		Window:TaskBarOnly(false)
+	end
+})
