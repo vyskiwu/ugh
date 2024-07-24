@@ -41,6 +41,7 @@ local autograbEnabled = false
 local roofTeleportEnabled = false
 local leftArmCheckEnabled = false
 local deleteCagesEnabled = false
+local teleportToOrbsEnabled = false
 
 local player = game.Players.LocalPlayer
 local originalPosition = player.Character.HumanoidRootPart.Position
@@ -48,31 +49,24 @@ local roofTeleportCoroutine = nil
 local originalMainEffectFolder = nil
 
 local function botKillerScript()
-	-- Settings
-	local transparencyValue = 1  
-	local canCollideValue = false  
-
+	local transparencyValue = 1
+	local canCollideValue = false
 
 	local function detectandmodify()
-		
 		local botsFolder = game:GetService("Workspace"):FindFirstChild("Bots")
 		
-		-- Check if the Bots folder exists
 		if botsFolder then
-			
 			for _, part in pairs(botsFolder:GetDescendants()) do
-				
 				local validParts = detectionPart == "All" and {
 					"Left Leg", "Right Leg", "Head", "Right Arm", "Left Arm"
 				} or {detectionPart}
 
 				if part:IsA("Part") and table.find(validParts, part.Name) then
-					
 					if not part:GetAttribute("Expanded") then
-						part.Size = part.Size + Vector3.new(300, 30, 300) 
-						part.Transparency = transparencyValue  
-						part.CanCollide = canCollideValue  
-						part:SetAttribute("Expanded", true)  
+						part.Size = part.Size + Vector3.new(300, 30, 300)
+						part.Transparency = transparencyValue
+						part.CanCollide = canCollideValue
+						part:SetAttribute("Expanded", true)
 					end
 				end
 			end
@@ -81,15 +75,13 @@ local function botKillerScript()
 		end
 	end
 
-	
 	local function continuousDetection()
 		while true do
-			detectandmodify()  
-			wait(1) 
+			detectandmodify()
+			wait(1)
 		end
 	end
 
-	
 	continuousDetection()
 end
 
@@ -124,9 +116,7 @@ local function safeModeScript()
 	end
 	
 	while safeModeEnabled do
-		
 		deleteMainEffectFolder()
-		
 		
 		local bossLasersFolder = game:GetService("Workspace"):FindFirstChild("BossLasers")
 		if bossLasersFolder then
@@ -146,46 +136,49 @@ local function safeModeScript()
 		wait(0.01)
 	end
 	
-	
 	if originalMainEffectFolder then
 		originalMainEffectFolder.Parent = replicatedStorage
 		originalMainEffectFolder = nil
 	end
 end
 
-local function teleportToOrbss()
-	local orbssFolder = game:GetService("Workspace"):FindFirstChild("Orbss")
-	if not orbssFolder then
-		warn("Orbss folder not found in Workspace.")
-		return
-	end
-	
-	if roofTeleportCoroutine then
-		roofTeleportEnabled = false 
-		roofTeleportCoroutine = nil
-	end
-	
-	for _, model in pairs(orbssFolder:GetChildren()) do
-		for _, part in pairs(model:GetDescendants()) do
-			if part:IsA("Part") and part.Name == "base" then
-				local partPos = part.Position
-				originalPosition = player.Character.HumanoidRootPart.Position
-				player.Character.HumanoidRootPart.CFrame = CFrame.new(partPos)
-				wait(0.5)
-				player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition)
-				break
+local function teleportToOrbsScript()
+	while teleportToOrbsEnabled do
+		local orbssFolder = game:GetService("Workspace"):FindFirstChild("Orbss")
+		if not orbssFolder then
+			warn("Orbss folder not found in Workspace.")
+			return
+		end
+		
+		if roofTeleportCoroutine then
+			roofTeleportEnabled = false
+			roofTeleportCoroutine = nil
+		end
+		
+		for _, model in pairs(orbssFolder:GetChildren()) do
+			for _, part in pairs(model:GetDescendants()) do
+				if part:IsA("Part") and part.Name == "base" then
+					local partPos = part.Position
+					originalPosition = player.Character.HumanoidRootPart.Position
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(partPos)
+					wait(0.5)
+					player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition)
+					break
+				end
 			end
 		end
+		
+		wait(1)
 	end
 end
 
 local function roofTeleport()
-	local roofPosition = Vector3.new(0, 1000, 0) 
+	local roofPosition = Vector3.new(0, 1000, 0)
 	while roofTeleportEnabled do
 		player.Character.HumanoidRootPart.CFrame = CFrame.new(roofPosition)
-		wait(2) 
+		wait(2)
 		player.Character.HumanoidRootPart.CFrame = CFrame.new(originalPosition)
-		wait(2) 
+		wait(2)
 	end
 end
 
@@ -204,14 +197,13 @@ local function BodyCheck()
 		for _, part in pairs(Body) do
 			local distance = (part.Position - player.Character.HumanoidRootPart.Position).Magnitude
 			if distance > 100 then
-				
 				if part.Parent and part.Parent:IsA("Model") then
 					part.Parent:SetPrimaryPartCFrame(CFrame.new(player.Character.HumanoidRootPart.Position + (part.Position - player.Character.HumanoidRootPart.Position).Unit * 100))
 				end
 			end
 		end
 
-		wait(1) 
+		wait(1)
 	end
 end
 
@@ -267,7 +259,6 @@ local Toggle2 = Section1:Toggle({
 			saveMainEffectFolder()
 			spawn(safeModeScript)
 		else
-			
 			if originalMainEffectFolder then
 				originalMainEffectFolder.Parent = game:GetService("ReplicatedStorage")
 				originalMainEffectFolder = nil
@@ -294,9 +285,9 @@ local Toggle3 = Section1:Toggle({
 		else
 			if roofTeleportCoroutine then
 				roofTeleportCoroutine:Cancel()
-				roofTeleportCoroutine = nil
+					roofTeleportCoroutine = nil
+				end
 			end
-		end
 		Library:Notify({
 			Name = "Roof TP Toggled",
 			Text = tostring(Bool),
@@ -340,6 +331,23 @@ local Toggle5 = Section1:Toggle({
 	end
 })
 
+local Toggle6 = Section1:Toggle({
+	Name = "Teleport To Orbs",
+	Default = false,
+	Callback = function(Bool)
+		teleportToOrbsEnabled = Bool
+		if Bool then
+			spawn(teleportToOrbsScript)
+		end
+		Library:Notify({
+			Name = "Teleport To Orbs Toggled",
+			Text = tostring(Bool),
+			Icon = "rbxassetid://11401835376",
+			Duration = 3
+		})
+	end
+})
+
 local Section2 = Tab:Section({
 	Name = "Other Controls"
 })
@@ -354,19 +362,6 @@ local Dropdown = Section2:Dropdown({
 			Text = item,
 			Icon = "rbxassetid://11401835376",
 			Duration = 3,
-		})
-	end
-})
-
-local Button = Section2:Button({
-	Name = "Teleport To Orbs",
-	Callback = function()
-		spawn(teleportToOrbss)
-		Library:Notify({
-			Name = "Teleporting to Orbs",
-			Text = "Teleporting to all orbs and back.",
-			Icon = "rbxassetid://11401835376",
-			Duration = 3
 		})
 	end
 })
