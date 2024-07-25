@@ -282,31 +282,6 @@ local Toggle2 = Section1:Toggle({
 	end
 })
 
-local Toggle3 = Section1:Toggle({
-	Name = "Roof TP",
-	Default = false,
-	Callback = function(Bool)
-		roofTeleportEnabled = Bool
-		if Bool then
-			if roofTeleportCoroutine then
-				roofTeleportCoroutine = coroutine.create(roofTeleport)
-				coroutine.resume(roofTeleportCoroutine)
-			end
-		else
-			if roofTeleportCoroutine then
-				coroutine.close(roofTeleportCoroutine)
-				roofTeleportCoroutine = nil
-			end
-		end
-		Library:Notify({
-			Name = "Roof TP Toggled",
-			Text = tostring(Bool),
-			Icon = "rbxassetid://11401835376",
-			Duration = 3
-		})
-	end
-})
-
 local Toggle4 = Section1:Toggle({
 	Name = "BodyCheck",
 	Default = false,
@@ -325,7 +300,7 @@ local Toggle4 = Section1:Toggle({
 })
 
 local Toggle5 = Section1:Toggle({
-	Name = "Delete Cages",
+	Name = "Delete Golem Spikes",
 	Default = false,
 	Callback = function(Bool)
 		deleteCagesEnabled = Bool
